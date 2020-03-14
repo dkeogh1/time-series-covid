@@ -21,6 +21,17 @@ class ToSupervised(base.BaseEstimator, base.TransformerMixin):
         self.X = X
         return self
 
-    
+    def transform(self, X):
+        
+        tmp = self.X.copy()
+        
+        for i in range(1, self.numlags):
+            tmp[str(i)+'_Day'+'_'+self.col] = tmp.groupby([self.groupcol])[self.col].shift(i)
 
-    
+        if self.dropna:
+            tmp = tmp.dropna()
+            tmp = tmp.reset_index(drop=True)
+
+        return tmp
+
+
