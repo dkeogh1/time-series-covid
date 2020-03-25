@@ -101,7 +101,9 @@ class LSTM_data_loader():
             self.df = self.df.diff().fillna(self.df[0]).astype(np.int64)
             print("Data is converted to daily delta")
 
-        
+    def drop_empty_days(self):
+        self.df = self.df.loc[:, (self.df != 0).any(axis=0)]
+    
     def gen_data_sets(self,test_data_size=0):   
         if test_data_size:
             self.train_data = self.df[:-test_data_size]
@@ -146,7 +148,7 @@ class LSTM_data_loader():
 def train_lstm(lstm, training_data, training_lables, testing_data = None, testing_labels = None, epochs = 50):
     
     loss_function = nn.MSELoss(reduction='sum')
-    optimizer = optim.Adam(lstm.parameters(), lr=1e-4, weight_decay=0.1)
+    optimizer = optim.Adam(lstm.parameters(), lr=1e-3, weight_decay=0.1)
 
     training_history = np.zeros(epochs)
     testing_history = np.zeros(epochs)
