@@ -62,18 +62,17 @@ class LSTM_data_loader():
             mask1 = self.df['Country/Region'].str.contains(self.country)
             self.df = self.df[mask1]
             
-            if self.region_list:
-                for x in self.region_list:
-                    counter = 0
-                    for r in self.df['Province/State'].tolist():
-                        if x in r:
-                            self.df['Province/State'].iloc[counter] = x
-                        elif r in self.state_mapper.keys():
-                            try:
-                                self.df['Province/State'].iloc[counter] = self._remap_to_abr(r)
-                            except Exception as e:
-                                print(e)
-                        counter += 1
+            counter = 0
+            for r in self.df['Province/State'].tolist():
+                if self.region_abr not in r:
+                    try:
+                        if self.region_abr == self._remap_to_abr(r):
+                            self.df['Province/State'].iloc[counter] = self._remap_to_abr(r)
+                    except KeyError:
+                        pass
+                    else:
+                        self.df.drop(self.df.index[counter])
+                counter += 1
                         
             mask2 = self.df['Province/State'].str.contains(self.region_abr)
             self.df = self.df[mask2]
@@ -118,7 +117,7 @@ class LSTM_data_loader():
             self.scaler = self.scaler.fit(np.expand_dims(self.train_data, axis=1))
             self.train_data = self.scaler.transform(np.expand_dims(self.train_data, axis=1))      
         
-    def set_seq(self, train=True, sequence_lenth=3):
+    def set_seq(self, train, sequence_lenth):
         if train:
             xs = []
             ys = []
