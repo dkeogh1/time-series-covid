@@ -41,12 +41,11 @@ class LSTM_Predictor(nn.Module):
 
 class LSTM_data_loader():
     
-    def __init__(self, region_abr, region_list, state_mapper, country, df):
+    def __init__(self, region_abr, state_mapper, country, df):
         
         self.df = df
         self.region_abr = region_abr
         self.country = country
-        self.region_list = region_list
         self.state_mapper = state_mapper
         self.scaler = MinMaxScaler()
         self.train_data = None
@@ -64,14 +63,15 @@ class LSTM_data_loader():
             
             counter = 0
             for r in self.df['Province/State'].tolist():
-                if self.region_abr not in r:
+                if self.region_abr in r:
+                    self.df['Province/State'].iloc[counter] = self.region_abr
+                else:
                     try:
                         if self.region_abr == self._remap_to_abr(r):
                             self.df['Province/State'].iloc[counter] = self._remap_to_abr(r)
                     except KeyError:
                         pass
-                    else:
-                        self.df.drop(self.df.index[counter])
+
                 counter += 1
                         
             mask2 = self.df['Province/State'].str.contains(self.region_abr)
@@ -163,7 +163,7 @@ def train_lstm(lstm, training_data, training_lables, testing_data = None, testin
                 test_loss = loss_function(test_pred.float(), testing_labels)
             testing_history[i] = test_loss.item()
 
-        if i % 40 == 0:
+        if i % 50 == 0:
             if testing_data is not None:
                 print(f'Epoch {i} train loss: {loss.item()} test loss: {test_loss.item()}')
             else:
