@@ -14,7 +14,7 @@ Two sets of models and predictions were made for this analysis. The first set of
 
 #### January 22nd - World Confirmed Cases
 
-[Interactive Version](./outputs/map_html/first_day_confirmed_cases.html)
+[Interactive Version](http://dkeogh1.github.io/time-series-covid/docs/first_day_confirmed_cases.html)
 
 _PNG_:
 
