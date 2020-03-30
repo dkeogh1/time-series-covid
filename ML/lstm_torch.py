@@ -103,7 +103,11 @@ class LSTM_data_loader():
     def drop_empty_days(self):
         self.df = self.df.loc[:, (self.df != 0).any(axis=0)]
     
-    def gen_data_sets(self,test_data_size=0):   
+    def gen_data_sets(self,test_data_size=0):
+        """Splits the data vectors and fits the scaler instantiated in the data loader to train and test data sizes
+        Args:
+            test_data_size (int) : the length of our test data vector, defaults to 0
+        """
         if test_data_size:
             self.train_data = self.df[:-test_data_size]
             self.scaler = self.scaler.fit(np.expand_dims(self.train_data, axis=1))
@@ -118,6 +122,13 @@ class LSTM_data_loader():
             self.train_data = self.scaler.transform(np.expand_dims(self.train_data, axis=1))      
         
     def set_seq(self, train, sequence_lenth):
+        """Set the sequences for training and testing data and their respective labels
+        Args:
+            train (boolean) : indicates if being run on training data or not
+            sequence_lenth : aligns the sequence points with the label for each set of train or test data.
+        Returns:
+            np.arrays with with both the label data and the sequence periods for each example
+        """
         if train:
             xs = []
             ys = []
@@ -144,8 +155,20 @@ class LSTM_data_loader():
           
 
 
-def train_lstm(lstm, training_data, training_lables, testing_data = None, testing_labels = None, epochs = 50):
-    
+def train_lstm(lstm, training_data, training_lables, testing_data = None, testing_labels = None, epochs = 50): 
+    """Perform inference on a discrete time-frame.
+        Args:
+            model: our instantiated lstm model
+            training_data : X traning vector
+            training_labels : correct outcome for corresponding X vector -- used for error metrics and optimization
+            testing_data : X training vector to test on
+            testing_labels : Y (outcome) vector for testing data
+            epochs: number of training iteration
+        Returns:
+            lstm : trained lstm network
+            training_history : an array of Mean Squared Error values for training data iterations
+            testing_history : an array of Mean Squared Error values for testing data iterations
+    """
     loss_function = nn.MSELoss(reduction='sum')
     optimizer = optim.Adam(lstm.parameters(), lr=1e-3, weight_decay=0.1)
 
@@ -176,6 +199,15 @@ def train_lstm(lstm, training_data, training_lables, testing_data = None, testin
     return lstm.eval(), training_history, testing_history
 
 def predict_future(n_future, time_data, sequece_lenth, model):
+    """Perform inference on a discrete time-frame.
+        Args:
+            n_future (int): number of points to predict on
+            time_data(dataframe) : data available for sequencing 
+            sequence_lenth(int) : the lenth of the sequence used in training
+            model : trained model used for running inference
+        Returns:
+            preds: tensor of predictions
+    """
     test_seq = time_data[:1]
     with torch.no_grad():
         preds = []
