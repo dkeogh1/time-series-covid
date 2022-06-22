@@ -13,7 +13,7 @@ Markdown==3.2.1
 nbconvert==5.6.1
 nbformat==5.0.4
 notebook==6.0.3
-numpy==1.18.1
+numpy==1.22.0
 pandas==0.23.4
 plotly==4.5.4
 pyproj==2.5.0
